@@ -1,0 +1,45 @@
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "69a97d84fb75702d1b2eca0e",
+      "text": "Excellent work! The portfolio is polished, engaging, and reflects a high level of professionalism.",
+      "user": {
+        "_id": "69a97be2b16002347e82ec37",
+        "name": "Vaibhav Awasthi",
+        "image": "https://avatars.githubusercontent.com/u/135322431?v=4"
+      },
+      "replies": [],
+      "createdAt": "2026-03-05T12:56:36.769Z",
+      "updatedAt": "2026-03-05T12:56:36.769Z",
+      "__v": 0
+    },
+    {
+      "_id": "695561b88dd3b7348aee6c42",
+      "text": "Great efforts. Truly gripping and appreciable to see the skills put to use.",
+      "user": {
+        "_id": "69517744a8f7e50df2a6b8b2",
+        "name": "Vikrant Singh",
+        "image": "https://lh3.googleusercontent.com/a/ACg8ocJNi0Ouj2oQt4DTXP-Jfao2uaCnHLoFQytL_rHKYT_DHgLavA=s96-c"
+      },
+      "replies": [],
+      "createdAt": "2025-12-31T17:47:36.385Z",
+      "updatedAt": "2025-12-31T17:47:36.385Z",
+      "__v": 0
+    },
+    {
+      "_id": "6955476c91007a99eb64121f",
+      "text": "By far one of the most impressive portfolio, i've ever seen!",
+      "user": {
+        "_id": "695545049ef87f9a950c5535",
+        "name": "Avantika Hossain",
+        "image": "https://lh3.googleusercontent.com/a/ACg8ocIp3uxYgLYG3Tc3mWQ4IugWb1kaMa359mj4mn1EPjxiN9MIVg=s96-c"
+      },
+      "replies": [],
+      "createdAt": "2025-12-31T15:55:24.670Z",
+      "updatedAt": "2025-12-31T15:55:24.670Z",
+      "__v": 0
+    }
+  ],
+  "count": 3
+}
