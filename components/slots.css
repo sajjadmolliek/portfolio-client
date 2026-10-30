@@ -1,0 +1,22 @@
+/*
+ * Shared styles for the client components that mount into the captured pages.
+ * Each component also carries its own scoped <style> block; this file only holds
+ * what every slot needs — a sane box model for injected markup and the mount
+ * point the Cal.com embed fills.
+ */
+
+.slot {
+  box-sizing: border-box;
+}
+
+.slot *,
+.slot *::before,
+.slot *::after {
+  box-sizing: inherit;
+}
+
+.cal-embed {
+  width: 100%;
+  min-height: 640px;
+  border: 0;
+}

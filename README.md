@@ -1,76 +1,93 @@
 # portfolio-client
 
-A local, fully working copy of <http://localhost:5000/> served on port **5000**,
-personalised to **MD. Sajjad Hossain** (<sajjadmolliek2018@gmail.com>, +8801734402046).
+The public portfolio site for **MD. Sajjad Hossain** — a Next.js 15 + React 19 +
+TypeScript app (App Router), deployed to **<https://md-sajjad-hossain.vercel.app>**.
+
+Every page is generated from the captured static site, so the markup, styles and
+fonts are the original ones; the parts that need data (contact form, guestbook,
+testimonials) are React client components wired to the dashboard API.
 
 ## Run
 
 ```bash
-npm install        # once (mongodb driver)
-node server.js     # http://localhost:5000
-PORT=8080 node server.js  # different port
+npm install          # once
+npm run dev          # http://localhost:5000
+npm run build        # production build
+npm run typecheck    # tsc --noEmit
+npm run generate     # regenerate app/ + lib/pages/ from the captured site
 ```
 
-Node >= 18. The only dependency is `mongodb`, used to store contact-form
-submissions and read testimonials from the same Atlas database the dashboard uses
-(`MONGODB_URI` in `.env`; without it the local `api-fixtures/` files answer).
+Node >= 18. The API base URL comes from `NEXT_PUBLIC_API_URL` (`.env` holds the
+local value `http://127.0.0.1:3000`; Vercel holds the production value).
 
-## What's inside
+## Structure
 
 | Path | Purpose |
 | --- | --- |
-| `index.html`, `about/`, `workspace/`, `contact/`, `bookCall/`, `guestBook/`, `links/`, `fillForm/`, `privacyPolicy/`, `termsOfUse/`, `work/*` | 19 mirrored routes with the name, email, phone and photo replaced |
-| `<route>/index.rsc` | Next.js flight payload so client-side `<Link>` navigation works without a Next server |
-| `_next/` | CSS, fonts, JS chunks (including the runtime-mapped lazy chunks) and media |
-| `*.png/jpg/webp/svg`, `svg/` | Images, icons and logos |
-| `404.html` | The site's own not-found page (served with HTTP 404) |
-| `api-fixtures/` | Captured API responses served locally (MongoDB fallback) |
-| `server.js` | The static + API server |
-| `mongo.js` | MongoDB helper used by the API endpoints |
+| `app/` | App Router pages — `layout.tsx` plus one `page.tsx` per route, all generated |
+| `lib/pages/*.ts` | the generated page markup as typed strings (one per route) |
+| `lib/api.ts` | typed fetch client + `useApi` hook for the dashboard API |
+| `components/` | client components mounted into pages (`ContactForm`, `Guestbook`, `BookCall`, `Testimonials`) plus the site-wide `SiteEffects`, `CursorFX` and `GitHubActivity` runtimes |
+| `scripts/generate-pages.mjs` | the generator: captured site → `app/` + `lib/pages/` + `public/site.css` |
+| `public/` | served assets: `site.css`, `site/media/` fonts, images, `svg/`, `rss.xml`, `sitemap.xml` |
+| `public/site.css` | the captured stylesheet, linked from the layout (not imported — see below) |
+| `index.html`, `about/`, `workspace/`, `work/*`, `_next/`, … | **captured source** — the input the generator reads; not served directly |
+| `api-fixtures/` | captured API responses; the dashboard seeds its collections from here |
 
-## What `server.js` emulates
+## How generation works
 
-- **Clean routes** — `/about` → `about/index.html`
-- **Next.js client navigation** — requests with `RSC: 1` or `?_rsc=` get the captured
-  flight payload (`index.rsc`) with `text/x-component`
-- **`/_next/image`** — the optimizer query is resolved to the real file on disk
-- **`GET /api/comments`** — testimonials on the home page (captured response)
-- **`GET /api/github/contributions`** — contribution graph on `/about`
-- **`POST /api/messages`** — contact form; accepted and appended to
-  `api-fixtures/received-messages.json` so the flow completes offline
-- **`POST /api/comments`** / **`GET /api/messages`** — return `401`, matching the
-  original site's behaviour for signed-out visitors (guestbook needs a login there too)
-- **`/_vercel/insights/script.js`, `/_vercel/speed-insights/script.js`,
-  `/analytics-stub.js`** — no-op stubs, so the copy runs without console errors and
-  does not send page views to the original site's Google Analytics
+`node scripts/generate-pages.mjs` walks the 19 routes and, for each one:
 
-## Personalisation
+1. pulls the real body content out of React's streaming hoist container and
+   drops it in place of the pending Suspense boundary, so nothing renders hidden;
+2. strips hydration scripts, streaming comments and empty `<template>` markers;
+3. removes the initial states of entrance animations (`opacity:0` +
+   `transform:translateY(…)`) — the original site animated those in on scroll,
+   and with its JavaScript gone the content would otherwise stay invisible.
+   Styles that toggle (`transition:`) or start collapsed (`height:0px`) are left
+   alone, since modals and accordions are meant to begin hidden;
+4. writes the markup to `lib/pages/<key>.ts` and a matching `app/<route>/page.tsx`
+   with real Next.js metadata.
 
-Everything on the site belongs to **MD. Sajjad Hossain** — replaced across the HTML,
-inline flight payloads (row byte-lengths recomputed), `.rsc` navigation payloads, JS
-chunks and API fixtures:
+The entrance states themselves are **kept** and tagged `data-reveal="source:props"`
+(`s:` = inline-style origin, `c:` = Tailwind `opacity-0` origin) so the page still
+ships the animation's starting point. `components/SiteEffects.tsx` then plays them
+in as the content scrolls into view — 0.6s with a 0.1s sibling stagger, matching
+the original `whileInView` timing — and reveals anything on screen at load so
+content can never be stranded invisible.
 
-| | |
-| --- | --- |
-| Name | `MD. Sajjad Hossain` |
-| Email | `sajjadmolliek2018@gmail.com` |
-| Phone | `+8801734402046` — contact card + `telephone` in the `Person`/`Organization` JSON-LD |
-| Photo | `av.jpg`, `av2.jpeg`, `profile.jpg`, `avatar.webp`, `favicon-32.png`, `apple-icon-180.png`, `icon-192.png` |
-| Socials | `github.com/sajjadmolliek` · `linkedin.com/in/md-sajjad-molliek` · `instagram.com/m.r.molliek` · `t.me/sajjadmolliek` |
-| Navbar avatar | 56 px (was 40) with a light ring, so the profile picture reads clearly |
-| Decorative art | `superman.png` (260×280, transparent) in place of the old cartoon; `spider.png` deleted |
+Pages that need live data get a `<!--SLOT-->` marker; the generated page splits on
+it and mounts the React component there, so a form lands inside the layout
+instead of under the footer.
 
-The `/links` cards show the matching handles (`@sajjadmolliek`, `@md-sajjad-molliek`,
-`@m.r.molliek`, `@sajjadmolliek`). One testimonial written by the previous owner was
-removed — three remain.
+The captured stylesheet is written to `public/site.css` and **linked** from
+`layout.tsx` rather than imported: it carries a few rules the original site got
+wrong (`.card p:not::after){…}`), browsers recover from those on their own, but
+Next runs every imported stylesheet through cssnano, which refuses to parse them.
+Fonts are copied to `public/site/media/` so the rewritten `/_next/static/media/*`
+URLs resolve.
 
-The admin panel lives next door in **`../backend-dashboard/`** and runs on port **3000**
-(`node server.js`); it reads and writes this folder's `api-fixtures/`.
+## API wiring
 
-## Verified
+| Route | Component | Endpoint |
+| --- | --- | --- |
+| `/contact`, `/fillForm` | `ContactForm` | `POST /api/messages` |
+| `/guestBook` | `Guestbook` | `GET` + `POST /api/testimonials` |
+| `/` | `Testimonials` | `GET /api/testimonials` |
+| `/bookCall` | `BookCall` | `GET /api/overview` (identity) |
+| `/about` (GitHub Activity card) | `GitHubActivity` | `GET /api/github` — server-side proxy to GitHub's GraphQL API |
 
-- 3,119 local references resolve; 20/20 routes answer 200; 0 missing assets
-- Flight payload integrity on all 20 HTML files (row lengths, boundaries) — 0 failures
-- 338 images, 54 headings, page height 15007 px at 1440×900
-- No old identity strings anywhere in the folder; no broken images on `/`, `/about`, `/links`
-- Client-side navigation (no reload), contact form submission and the 404 page all work
+`/api/github` reads `GITHUB_TOKEN` from the server environment (set in Vercel for
+production, `.env` locally) and answers with the contribution calendar for
+`GITHUB_LOGIN`; the token is never shipped to the browser and the response is
+cached for five minutes. The captured card fills in its heading, month row and
+53×7 grid from that response.
+
+The dashboard lives at **<https://portfolio-dashboard-sajjad.vercel.app>** and
+answers with CORS headers for this origin.
+
+## Deployed
+
+Vercel project `md-sajjad-hossain` → <https://md-sajjad-hossain.vercel.app>
+(`vercel --prod` from this folder). Production `NEXT_PUBLIC_API_URL` is set in
+Vercel's environment, not in `.env`.

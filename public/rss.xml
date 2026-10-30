@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="/rss-styles.xsl" type="text/xsl"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>MD. Sajjad Hossain — Portfolio</title>
+    <link>http://localhost:5000</link>
+    <description>Full Stack Developer Portfolio showcasing dashboards, automation systems, and scalable business solutions.</description>
+    <lastBuildDate>Tue, 27 Oct 2026 15:16:28 GMT</lastBuildDate>
+    <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+    <generator>Next.js RSS Feed</generator>
+    <language>en</language>
+    <image>
+      <title>MD. Sajjad Hossain — Portfolio</title>
+      <url>http://localhost:5000/av.jpg</url>
+      <link>http://localhost:5000</link>
+    </image>
+    <copyright>All rights reserved 2026, MD. Sajjad Hossain</copyright>
+    <item>
+      <title><![CDATA[ Home ]]></title>
+      <link>http://localhost:5000/</link>
+      <guid isPermaLink="false">http://localhost:5000/</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ MD. Sajjad Hossain Portfolio Homepage ]]></description>
+      <content:encoded><![CDATA[ MD. Sajjad Hossain Portfolio Homepage Visit page: http://localhost:5000/ ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>portfolio</category>
+      <category>developer</category>
+    </item>
+    <item>
+      <title><![CDATA[ About ]]></title>
+      <link>http://localhost:5000/about</link>
+      <guid isPermaLink="false">http://localhost:5000/about</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ About MD. Sajjad Hossain ]]></description>
+      <content:encoded><![CDATA[ About MD. Sajjad Hossain Visit page: http://localhost:5000/about ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>about</category>
+      <category>profile</category>
+    </item>
+    <item>
+      <title><![CDATA[ Workspace ]]></title>
+      <link>http://localhost:5000/workspace</link>
+      <guid isPermaLink="false">http://localhost:5000/workspace</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ Projects and dashboards built for real business workflows. ]]></description>
+      <content:encoded><![CDATA[ Projects and dashboards built for real business workflows. Visit page: http://localhost:5000/workspace ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>projects</category>
+      <category>work</category>
+    </item>
+    <item>
+      <title><![CDATA[ Contact ]]></title>
+      <link>http://localhost:5000/contact</link>
+      <guid isPermaLink="false">http://localhost:5000/contact</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ Get in touch with MD. Sajjad Hossain. ]]></description>
+      <content:encoded><![CDATA[ Get in touch with MD. Sajjad Hossain. Visit page: http://localhost:5000/contact ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>contact</category>
+    </item>
+    <item>
+      <title><![CDATA[ Links ]]></title>
+      <link>http://localhost:5000/links</link>
+      <guid isPermaLink="false">http://localhost:5000/links</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ Professional social links including GitHub and LinkedIn. ]]></description>
+      <content:encoded><![CDATA[ Professional social links including GitHub and LinkedIn. Visit page: http://localhost:5000/links ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>social</category>
+      <category>links</category>
+    </item>
+    <item>
+      <title><![CDATA[ Book a Call ]]></title>
+      <link>http://localhost:5000/bookCall</link>
+      <guid isPermaLink="false">http://localhost:5000/bookCall</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ Schedule a call with MD. Sajjad Hossain. ]]></description>
+      <content:encoded><![CDATA[ Schedule a call with MD. Sajjad Hossain. Visit page: http://localhost:5000/bookCall ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>contact</category>
+      <category>meeting</category>
+    </item>
+    <item>
+      <title><![CDATA[ Guestbook ]]></title>
+      <link>http://localhost:5000/guestBook</link>
+      <guid isPermaLink="false">http://localhost:5000/guestBook</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ Sign the guestbook and share your thoughts with MD. Sajjad Hossain. ]]></description>
+      <content:encoded><![CDATA[ Sign the guestbook and share your thoughts with MD. Sajjad Hossain. Visit page: http://localhost:5000/guestBook ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>guestbook</category>
+      <category>community</category>
+    </item>
+    <item>
+      <title><![CDATA[ Fill the Form ]]></title>
+      <link>http://localhost:5000/fillForm</link>
+      <guid isPermaLink="false">http://localhost:5000/fillForm</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ Reach out to MD. Sajjad Hossain through the contact form. ]]></description>
+      <content:encoded><![CDATA[ Reach out to MD. Sajjad Hossain through the contact form. Visit page: http://localhost:5000/fillForm ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>contact</category>
+      <category>form</category>
+    </item>
+    <item>
+      <title><![CDATA[ Privacy Policy ]]></title>
+      <link>http://localhost:5000/privacyPolicy</link>
+      <guid isPermaLink="false">http://localhost:5000/privacyPolicy</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ How MD. Sajjad Hossain's portfolio collects and handles your data. ]]></description>
+      <content:encoded><![CDATA[ How MD. Sajjad Hossain's portfolio collects and handles your data. Visit page: http://localhost:5000/privacyPolicy ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>legal</category>
+      <category>privacy</category>
+    </item>
+    <item>
+      <title><![CDATA[ Terms of Use ]]></title>
+      <link>http://localhost:5000/termsOfUse</link>
+      <guid isPermaLink="false">http://localhost:5000/termsOfUse</guid>
+      <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[ Terms and conditions for using MD. Sajjad Hossain's portfolio. ]]></description>
+      <content:encoded><![CDATA[ Terms and conditions for using MD. Sajjad Hossain's portfolio. Visit page: http://localhost:5000/termsOfUse ]]></content:encoded>
+      <author>sajjadmolliek2018@gmail.com (MD. Sajjad Hossain)</author>
+      <category>legal</category>
+      <category>terms</category>
+    </item>
+  </channel>
+</rss>
