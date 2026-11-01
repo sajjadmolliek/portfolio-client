@@ -10,6 +10,14 @@
  *
  * Selectors are unscoped (the original scoped them with `jsx-…` classes) so the
  * rule still applies if the markup is re-captured under a different hash.
+ *
+ * Auto-scroll behaviour: the animation translates the inner `flex w-max` row, so
+ * the wrapping `div.relative.overflow-hidden` is what keeps the item scrolling off
+ * the leading edge from re-entering on the trailing edge. Do not move
+ * `overflow:hidden` onto the `.animate-scroll-*` flex row itself — that fixes the
+ * visual reset mid-look and makes the loop stutter. If you regenerate the page and
+ * the marquee rows are missing their `relative overflow-hidden` parent, re-add it
+ * (the file `lib/pages/home.ts` already has it at lines 218 and 438).
  */
 
 @keyframes fade-in {
