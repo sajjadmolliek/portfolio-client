@@ -439,7 +439,72 @@ export default function SiteEffects() {
       if (sup) {
         if (desktop) sup.style.left = '-40px';
         else sup.style.removeProperty('left');
+
+        /*
+         * Avatar-on-fist animation. When Superman is parked above the nav bar the
+         * reference page converts the avatar into a same-origin overlay riding the
+         * fist: it scales from 0→1, snaps forward across the heel, then settles back
+         * inside the bar. The layerArt() calls below are the timing — we add the
+         * visuals here so the two routes that still carry superman.png animate
+         * identically to the demo.
+         */
+        if (desktop) {
+          // The reference page layers the profile photo over Superman's raised
+          // fist and animates it the moment the illustration scrolls into the
+          // upper viewport: a small scale bounce, then the photo settles into the
+          // nav bar. The scroll handler below fires that sequence; we keep the
+          // photo invisible until the animation begins so the page never shows an
+          // abrupt avatar pop-in.
+          sup.style.opacity = '0';
+          sup.style.transition = 'opacity .4s ease';
+          const bar = sup.closest<HTMLElement>('nav div.relative') ?? null;
+          const base = bar ? Math.round((bar.offsetHeight ?? 56) / 2 - 28) : 0;
+          let started = false;
+          let cleanup: (() => void) | null = null;
+          const launch = () => {
+            if (started || !sup.isConnected) return;
+            started = true;
+            sup.style.position = 'relative';
+            sup.style.zIndex = '50';
+            sup.style.opacity = '1';
+            // tiny delay so the opacity fade is felt before the scale pop
+            sup.style.transition = 'opacity .4s ease';
+            void sup.offsetHeight;
+            sup.style.transform = 'scale(0) translateY(-14px)';
+            sup.style.transition = 'transform .55s cubic-bezier(.5,0,.5,1.25)';
+            void sup.offsetHeight;
+            sup.style.transform = 'scale(1.15) translateY(4px)';
+            sup.style.transition = 'transform .5s cubic-bezier(.2,.7,.3,1)';
+            void sup.offsetHeight;
+            sup.style.transform = 'scale(1) translateY(0)';
+            sup.style.transition = '';
+            cleanup = () => {
+              window.removeEventListener('scroll', tick);
+              window.removeEventListener('resize', mark);
+              sup.style.removeProperty('z-index');
+              sup.style.removeProperty('position');
+              sup.style.removeProperty('opacity');
+              sup.style.removeProperty('transition');
+            };
+          };
+          const mark = () => {
+            if (!sup.isConnected) { cleanup?.(); cleanup = null; return; }
+            if (sup.getBoundingClientRect().top < 8) launch();
+          };
+          const tick = () => { if (!started && sup.isConnected) mark(); };
+          window.addEventListener('scroll', tick, { passive: true });
+          window.addEventListener('resize', () => { if (!started && sup.isConnected) mark(); });
+          setTimeout(() => { if (!started && sup.isConnected) mark(); }, 400);
+          // keep the animation's cleanup alive across React remounts — the photo
+          // element is stable on these two routes, so the scroll handler only
+          // needs to go once the image is gone from the DOM
+          return () => {
+            tick();
+            if (cleanup) cleanup();
+          };
+        }
       }
+
       const wrap = Array.from(document.querySelectorAll<HTMLElement>('div.absolute')).find(
         el => el.className.includes('left-8') && el.className.includes('top-1/2') && el.querySelector('img[alt="avlogo"]'),
       );
@@ -466,6 +531,44 @@ export default function SiteEffects() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const art = setupArt(!reduce);
     const els = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+
+    // Hero-banner background fade-in (home + workspace).
+    // When a route ships an actual photo in the banner frame, fade the placeholder
+    // SVG out and the photo in so the background slides up instead of popping.
+    const runBannerFade = (host: HTMLElement | null) => {
+      if (!host || reduce) return;        const frame = host.querySelector<HTMLElement>('.banner-frame');
+      if (!frame) return;
+      const placeholder = frame.querySelector<HTMLElement>('svg');
+      const img = frame.querySelector<HTMLImageElement>('img');
+      if (!placeholder || !img) return;
+      const stamp = () => { void placeholder.offsetHeight; };
+      if (img.complete && img.naturalWidth > 0) {
+        placeholder.style.opacity = '0';
+        placeholder.style.transition = 'opacity .5s ease';
+        stamp();
+        placeholder.remove();
+        img.style.opacity = '1';
+        img.style.transition = 'opacity .5s ease';
+      } else {
+        img.style.opacity = '0';
+        img.style.transition = 'opacity .5s ease';
+        img.addEventListener('load', () => {
+          if (!img.isConnected || !placeholder.isConnected) return;
+          placeholder.style.opacity = '0';
+          placeholder.style.transition = 'opacity .5s ease';
+          stamp();
+          placeholder.remove();
+          img.style.opacity = '1';
+        }, { once: true });
+        img.addEventListener('error', () => {
+          if (!img.isConnected) return;
+          img.style.opacity = '0';
+          img.style.pointerEvents = 'none';
+        }, { once: true });
+      }
+    };
+    const bannerHost = document.querySelector('[data-slot="hero-banner"]') as HTMLElement | null;
+    runBannerFade(bannerHost);
 
     if (reduce) {
       els.forEach(el => reveal(el, 0, false));

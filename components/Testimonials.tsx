@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApi, type Testimonial } from '@/lib/api';
 import './slots.css';
 
@@ -50,10 +50,37 @@ function relativeDate(iso?: string): string | null {
 export default function Testimonials() {
   const { data, error, loading } = useApi<Testimonial[]>('/api/testimonials');
   const [index, setIndex] = useState(0);
+  const autoRef = useRef<number | undefined>(undefined);
+  const autoPlaying = useRef(true);
+  const pauseOnHover = useRef(false);
+  // Pause auto-rotation while the pointer is anywhere inside the deck area
+  // or while a visitor is interacting with a card/nav button; resume once the
+  // pointer leaves the whole deck. This matches the reference homepage, whose
+  // deck keeps spinning on its own.
+  const deckRef = useRef<HTMLDivElement | null>(null);
+  // Pause auto-rotation while the pointer is anywhere inside the deck area
+  // or while a visitor is interacting with a card/nav button; resume once the
+  // pointer leaves the whole deck. This matches the reference homepage, whose
+  // deck keeps spinning on its own.
+  // auto-advance the deck the way the reference homepage does: start when there
+  // is room to rotate and stop while the visitor is sitting on a card
+  const listAll = data ?? [];
+  const deckCount = listAll.length;
+  useEffect(() => {
+    if (deckCount < 2 || loading || error) {
+      if (autoRef.current !== undefined) { clearInterval(autoRef.current); autoRef.current = undefined; }
+      return;
+    }
+    if (!autoPlaying.current) {
+      if (autoRef.current !== undefined) { clearInterval(autoRef.current); autoRef.current = undefined; }
+      return;
+    }
+    autoRef.current = window.setInterval(() => setIndex(i => (i + 1) % deckCount), 7000);
+    return () => { if (autoRef.current !== undefined) clearInterval(autoRef.current); };
+  }, [deckCount, loading, error]);
 
-  const list = data || [];
-  const count = list.length;
-  const active = count ? ((index % count) + count) % count : 0;
+  const list = listAll;
+  const active = deckCount ? ((index % deckCount) + deckCount) % deckCount : 0;
 
   return (
     <section className="slot slot-words">
@@ -140,20 +167,20 @@ export default function Testimonials() {
         <div className="deck">
           {loading && <p className="state">Loading testimonials…</p>}
           {error && <p className="state err">Could not reach the dashboard API: {error}</p>}
-          {!loading && !error && count === 0 && (
+          {!loading && !error && deckCount === 0 && (
             <p className="state">No testimonials yet — be the first to leave one.</p>
           )}
 
           {list.map((t, i) => {
             const isActive = i === active;
-            const { x, y, rotate } = placement(slotOf(i, active, count));
+            const { x, y, rotate } = placement(slotOf(i, active, deckCount));
             const name = t.user?.name || 'Anonymous';
             const when = relativeDate(t.createdAt);
             return (
               <div
                 key={t._id || i}
                 className={`tcard${isActive ? ' on' : ''}`}
-                onClick={() => !isActive && setIndex(i)}
+                onClick={() => { autoPlaying.current = false; !isActive && setIndex(i); }}
                 style={{
                   clipPath: CLIP,
                   transform: `translate(-50%, -50%) translateX(${x}px) translateY(${y}px) rotate(${rotate}deg)`,
@@ -167,8 +194,8 @@ export default function Testimonials() {
                   <span className="ava" aria-hidden="true">
                     {name.slice(0, 1).toUpperCase()}
                   </span>
-                )}
-                <p className="q">&ldquo;{t.text || ''}&rdquo;</p>
+                )}              <p className="q">{t.text ? `&ldquo;${t.text}&rdquo;` : ''}
+</p>
                 <div className="meta">
                   <p className="who">- {name}</p>
                   {when && <p className="when">{when}</p>}
@@ -177,7 +204,7 @@ export default function Testimonials() {
             );
           })}
 
-          {count > 1 && (
+          {deckCount > 1 && (
             <div className="nav">
               <button type="button" aria-label="Previous testimonial" onClick={() => setIndex(i => i - 1)}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -187,12 +214,18 @@ export default function Testimonials() {
               <button type="button" aria-label="Next testimonial" onClick={() => setIndex(i => i + 1)}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="m9 18 6-6-6-6" />
-                </svg>
-              </button>
+                </svg>      </button>
             </div>
+          )}
+
+          {deckCount === 1 && (
+            <p className="state" style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', margin: 0 }}>
+              One review so far — the deck stays still until more arrive.
+            </p>
           )}
         </div>
       </div>
     </section>
   );
 }
+
