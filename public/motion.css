@@ -1,0 +1,72 @@
+/*
+ * The animations the captured site never wrote to a .css file.
+ *
+ * The original page ships two styled-jsx blocks that only exist as <style>
+ * tags once React hydrates — they are injected into <head> at runtime, so they
+ * are absent from both captured stylesheets (and from the hydration scripts the
+ * generator strips). Without them these classes are inert: the home page's 38
+ * `animate-fade-in` blocks (skills grid, chips, stats) simply sit there, and
+ * the six `animate-scroll-*` tech-stack rows never move.
+ *
+ * Selectors are unscoped (the original scoped them with `jsx-…` classes) so the
+ * rule still applies if the markup is re-captured under a different hash.
+ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes scroll-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scroll-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.animate-scroll-rtl {
+  animation: scroll-rtl 25s linear infinite;
+}
+
+.animate-scroll-ltr {
+  animation: scroll-ltr 30s linear infinite;
+}
+
+.animate-scroll-rtl-slow {
+  animation: scroll-rtl 35s linear infinite;
+}
+
+.animate-shine {
+  animation: shine 0.8s ease-out;
+}

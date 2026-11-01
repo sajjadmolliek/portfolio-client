@@ -32,6 +32,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* The captured stylesheet is a static file (public/site.css) rather than an
             import — see scripts/generate-pages.mjs. */}
         <link rel="stylesheet" href="/site.css" />
+        {/* …and the animations the original only injected at runtime (see
+            public/motion.css): without this file the home page's fade-in blocks
+            and the scrolling tech-stack rows are inert. */}
+        <link rel="stylesheet" href="/motion.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

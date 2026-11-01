@@ -7,7 +7,12 @@ import type { ContributionDay } from '@/components/GitHubActivity';
  * never sees it, it is never baked into a bundle, and the response is cached for
  * five minutes so a page view does not cost a GraphQL request.
  *
- *   GET /api/github        → { login, total, weeks: ContributionDay[][] }
+ *   GET /api/github        → { login, total, weeks, repos: { public, private, total } }
+ *
+ * The three repository counts feed the Public / Private / Total Repos cards on
+ * the same page. `privacy` filtering is done by GitHub itself so the numbers are
+ * exact for any repo count (no pagination on our side), and the private count is
+ * only meaningful because the token is the account's own.
  */
 
 export const revalidate = 300;
@@ -15,8 +20,7 @@ export const revalidate = 300;
 const LOGIN = process.env.GITHUB_LOGIN || 'sajjadmolliek';
 
 const QUERY = `
-  query ($login: String!) {
-    user(login: $login) {
+  query ($login: String!) {        user(login: $login) {
       login
       avatarUrl
       contributionsCollection {
@@ -30,6 +34,15 @@ const QUERY = `
             }
           }
         }
+      }
+      publicRepos: repositories(privacy: PUBLIC, ownerAffiliations: OWNER) {
+        totalCount
+      }
+      privateRepos: repositories(privacy: PRIVATE, ownerAffiliations: OWNER) {
+        totalCount
+      }
+      totalRepos: repositories(ownerAffiliations: OWNER) {
+        totalCount
       }
     }
   }
@@ -76,6 +89,9 @@ export async function GET(): Promise<Response> {
               weeks: { contributionDays: ContributionDay[] }[];
             };
           };
+          publicRepos: { totalCount: number };
+          privateRepos: { totalCount: number };
+          totalRepos: { totalCount: number };
         };
       };
       errors?: GraphQLError[];
@@ -95,6 +111,11 @@ export async function GET(): Promise<Response> {
         login: user.login,
         total: calendar.totalContributions,
         weeks: calendar.weeks.map(w => w.contributionDays),
+        repos: {
+          public: user.publicRepos.totalCount,
+          private: user.privateRepos.totalCount,
+          total: user.totalRepos.totalCount,
+        },
       },
       {
         headers: {
