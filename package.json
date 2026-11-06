@@ -8,15 +8,20 @@
     "build": "next build",
     "start": "next start -p 5000",
     "typecheck": "tsc --noEmit",
-    "generate": "node scripts/generate-pages.mjs"
+    "generate": "node scripts/generate-pages.mjs",
+    "postgenerate": "node scripts/_patch_banner.mjs"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
     "next": "^15.5.4",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "three": "^0.187.0",
+    "three-globe": "^2.45.6"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

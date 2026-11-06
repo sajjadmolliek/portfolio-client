@@ -1,7 +1,7 @@
 /* Generated from the captured site by scripts/generate-pages.mjs — do not edit. */
 import type { Metadata } from 'next';
 import { html, title, description } from '@/lib/pages/guestBook';
-import Guestbook from '@/components/Guestbook';
+import GuestbookLive from '@/components/GuestbookLive';
 
 export const metadata: Metadata = { title, description };
 
@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <>
       <div dangerouslySetInnerHTML={{ __html: before }} />
-      <Guestbook />
+      <GuestbookLive />
       <div dangerouslySetInnerHTML={{ __html: after }} />
     </>
   );

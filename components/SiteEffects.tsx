@@ -372,22 +372,17 @@ function setupArt(animate: boolean) {
   };
 
   /* ------------------------------------------------------- nav bar */
+  // The bar stays put. The reference parks it off-screen while scrolling down
+  // (`translateY(-100px)`) and eases it back on the way up, but the superman
+  // image lives inside that wrapper: giving the wrapper a transform makes it the
+  // containing block for the image's `position: fixed`, so the image slid around
+  // with the bar instead of staying at its spot. Keeping the bar stationary keeps
+  // both of them fixed on screen, which is what the page is meant to look like.
   const header = document.querySelector<HTMLElement>('div.hidden.md\\:block.fixed.top-6');
-  let lastY = window.scrollY;
-  let parked = false;
-  const onNavScroll = () => {
-    if (!header) return;
-    const y = window.scrollY;
-    if (y === lastY) return;
-    const down = y > lastY;
-    lastY = y;
-    // `lastY` has to be read before it is updated, otherwise `y > lastY` can
-    // only ever be false and the bar never parks itself
-    if (down === parked) return;
-    parked = down;
-    header.style.transition = 'transform .3s ease';
-    header.style.transform = down ? 'translateY(-100px)' : 'none';
-  };
+  if (header) {
+    header.style.transition = '';
+    header.style.transform = 'none';
+  }
 
   /* ------------------------------------------------------ the driver */
   let frame = 0;
@@ -397,7 +392,6 @@ function setupArt(animate: boolean) {
     paintCurated();
   };
   const onScroll = () => {
-    onNavScroll();
     if (!frame) frame = requestAnimationFrame(paint);
   };
 
@@ -436,90 +430,24 @@ export default function SiteEffects() {
     const layerArt = () => {
       const desktop = window.innerWidth >= 768;
       const sup = document.querySelector<HTMLImageElement>('img[alt="Superman"]');
-      if (sup) {
-        if (desktop) sup.style.left = '-40px';
-        else sup.style.removeProperty('left');
-
+      if (sup && desktop) {
         /*
-         * Avatar-on-fist animation. When Superman is parked above the nav bar the
-         * reference page converts the avatar into a same-origin overlay riding the
-         * fist: it scales from 0→1, snaps forward across the heel, then settles back
-         * inside the bar. The layerArt() calls below are the timing — we add the
-         * visuals here so the two routes that still carry superman.png animate
-         * identically to the demo.
+         * The box comes from the reference's own markup (`fixed -left-8 top-48
+         * -translate-y-1/2 …`, applied by scripts/generate-pages.mjs), so nothing
+         * is moved here — the picture has to hold that spot while the page
+         * scrolls. An avatar-on-fist animation used to flip the image to
+         * `position: relative` and scale it on the first scroll; because the bar
+         * was being translated at the same time (a transform makes the bar the
+         * containing block for its fixed children) the picture wandered around the
+         * viewport instead of holding its spot. The bar no longer transforms, so
+         * this only clears any stale inline override that animation left behind.
          */
-        if (desktop) {
-          // The reference page layers the profile photo over Superman's raised
-          // fist and animates it the moment the illustration scrolls into the
-          // upper viewport: a small scale bounce, then the photo settles into the
-          // nav bar. The scroll handler below fires that sequence; we keep the
-          // photo invisible until the animation begins so the page never shows an
-          // abrupt avatar pop-in.
-          sup.style.opacity = '0';
-          sup.style.transition = 'opacity .4s ease';
-          const bar = sup.closest<HTMLElement>('nav div.relative') ?? null;
-          const base = bar ? Math.round((bar.offsetHeight ?? 56) / 2 - 28) : 0;
-          let started = false;
-          let cleanup: (() => void) | null = null;
-          const launch = () => {
-            if (started || !sup.isConnected) return;
-            started = true;
-            sup.style.position = 'relative';
-            sup.style.zIndex = '50';
-            sup.style.opacity = '1';
-            // tiny delay so the opacity fade is felt before the scale pop
-            sup.style.transition = 'opacity .4s ease';
-            void sup.offsetHeight;
-            sup.style.transform = 'scale(0) translateY(-14px)';
-            sup.style.transition = 'transform .55s cubic-bezier(.5,0,.5,1.25)';
-            void sup.offsetHeight;
-            sup.style.transform = 'scale(1.15) translateY(4px)';
-            sup.style.transition = 'transform .5s cubic-bezier(.2,.7,.3,1)';
-            void sup.offsetHeight;
-            sup.style.transform = 'scale(1) translateY(0)';
-            sup.style.transition = '';
-            cleanup = () => {
-              window.removeEventListener('scroll', tick);
-              window.removeEventListener('resize', mark);
-              sup.style.removeProperty('z-index');
-              sup.style.removeProperty('position');
-              sup.style.removeProperty('opacity');
-              sup.style.removeProperty('transition');
-            };
-          };
-          const mark = () => {
-            if (!sup.isConnected) { cleanup?.(); cleanup = null; return; }
-            if (sup.getBoundingClientRect().top < 8) launch();
-          };
-          const tick = () => { if (!started && sup.isConnected) mark(); };
-          window.addEventListener('scroll', tick, { passive: true });
-          window.addEventListener('resize', () => { if (!started && sup.isConnected) mark(); });
-          setTimeout(() => { if (!started && sup.isConnected) mark(); }, 400);
-          // keep the animation's cleanup alive across React remounts — the photo
-          // element is stable on these two routes, so the scroll handler only
-          // needs to go once the image is gone from the DOM
-          return () => {
-            tick();
-            if (cleanup) cleanup();
-          };
-        }
-      }
-
-      const wrap = Array.from(document.querySelectorAll<HTMLElement>('div.absolute')).find(
-        el => el.className.includes('left-8') && el.className.includes('top-1/2') && el.querySelector('img[alt="avlogo"]'),
-      );
-      if (wrap) {
-        if (desktop) {
-          const bar = wrap.parentElement as HTMLElement | null;
-          wrap.style.left = '40px';
-          // the original parked it at `top-1/2 -translate-y-1/2` inside the bar,
-          // which puts it just above Superman instead of across his head
-          wrap.style.top = `${Math.round((bar?.offsetHeight ?? 56) / 2 - 28)}px`;
-          wrap.style.translate = 'none';
-        } else {
-          wrap.style.removeProperty('left');
-          wrap.style.removeProperty('top');
-          wrap.style.removeProperty('translate');
+        if (sup.style.position) {
+          sup.style.removeProperty('position');
+          sup.style.removeProperty('z-index');
+          sup.style.removeProperty('opacity');
+          sup.style.removeProperty('transform');
+          sup.style.removeProperty('transition');
         }
       }
     };

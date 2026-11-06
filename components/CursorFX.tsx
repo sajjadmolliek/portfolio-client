@@ -91,8 +91,10 @@ export default function CursorFX() {
     let pillEl: HTMLElement | null = null;
 
     const loop = (now: number) => {
-      cursorEl = cursorEl || container.querySelector<HTMLElement>('[data-slot="cursor"]');
-      pillEl = pillEl || container.querySelector<HTMLElement>('[data-slot="cursor-follow"]');
+      cursorEl = cursorEl?.isConnected ? cursorEl : container.querySelector<HTMLElement>('[data-slot="cursor"]');
+      // the pill only exists while the pointer is inside the block (see `active`
+      // below), so its cached node has to be refreshed after every mount
+      pillEl = pillEl?.isConnected ? pillEl : container.querySelector<HTMLElement>('[data-slot="cursor-follow"]');
       const dt = Math.min((now - last) / 1000 || 0, 1 / 30);
       last = now;
       const h = dt / 4;
@@ -181,18 +183,22 @@ export default function CursorFX() {
           />
         </svg>
       </div>
-      <div
-        data-slot="cursor-follow"
-        className="pointer-events-none z-[9998] absolute"
-        style={{
-          transform: `translate(${PILL_OFFSET}px, ${PILL_OFFSET}px) scale(${active ? 1 : 0})`,
-          transformOrigin: '0 0',
-          opacity: active ? 1 : 0,
-          transition: 'transform .25s cubic-bezier(.22,1,.36,1), opacity .25s ease',
-        }}
-      >
-        <PillContent />
-      </div>
+      {/* mounted only while the pointer is inside the block, like the original's
+          AnimatePresence — an always-present pill put its label into the page
+          text and, with it, into every parity comparison */}
+      {active && (
+        <div
+          data-slot="cursor-follow"
+          className="pointer-events-none z-[9998] absolute"
+          style={{
+            transform: `translate(${PILL_OFFSET}px, ${PILL_OFFSET}px)`,
+            transformOrigin: '0 0',
+            transition: 'transform .25s cubic-bezier(.22,1,.36,1), opacity .25s ease',
+          }}
+        >
+          <PillContent />
+        </div>
+      )}
     </>,
     host,
   );

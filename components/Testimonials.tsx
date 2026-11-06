@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useApi, type Testimonial } from '@/lib/api';
+import { toast } from '@/lib/toast';
 import './slots.css';
 
 /**
@@ -81,6 +82,15 @@ export default function Testimonials() {
 
   const list = listAll;
   const active = deckCount ? ((index % deckCount) + deckCount) % deckCount : 0;
+
+  // the reference section only exists once testimonials arrive: while loading, or
+  // with an empty deck, it renders nothing, and a failed fetch becomes a toast
+  // ("Failed to load testimonials / Please try again later").
+  useEffect(() => {
+    if (error) toast.error('Failed to load testimonials', { description: 'Please try again later' });
+  }, [error]);
+
+  if (loading || deckCount === 0) return null;
 
   return (
     <section className="slot slot-words">
@@ -165,12 +175,6 @@ export default function Testimonials() {
 
       <div className="deck-area">
         <div className="deck">
-          {loading && <p className="state">Loading testimonials…</p>}
-          {error && <p className="state err">Could not reach the dashboard API: {error}</p>}
-          {!loading && !error && deckCount === 0 && (
-            <p className="state">No testimonials yet — be the first to leave one.</p>
-          )}
-
           {list.map((t, i) => {
             const isActive = i === active;
             const { x, y, rotate } = placement(slotOf(i, active, deckCount));
@@ -218,11 +222,6 @@ export default function Testimonials() {
             </div>
           )}
 
-          {deckCount === 1 && (
-            <p className="state" style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', margin: 0 }}>
-              One review so far — the deck stays still until more arrive.
-            </p>
-          )}
         </div>
       </div>
     </section>

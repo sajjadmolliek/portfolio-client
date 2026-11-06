@@ -27,10 +27,11 @@ local value `http://127.0.0.1:3000`; Vercel holds the production value).
 | `app/` | App Router pages — `layout.tsx` plus one `page.tsx` per route, all generated |
 | `lib/pages/*.ts` | the generated page markup as typed strings (one per route) |
 | `lib/api.ts` | typed fetch client + `useApi` hook for the dashboard API |
-| `components/` | client components mounted into pages (`ContactForm`, `Guestbook`, `BookCall`, `Testimonials`) plus the site-wide `SiteEffects`, `CursorFX` and `GitHubActivity` runtimes |
+| `components/` | client components mounted into pages (`MessageForm`, `GuestbookLive`, `BookCall`, `Testimonials`) plus the site-wide `SiteEffects`, `CursorFX`, `GitHubActivity`, `GlobeSection` and `HeroRoleLoop` runtimes, and the sonner-style `Toaster` |
 | `scripts/generate-pages.mjs` | the generator: captured site → `app/` + `lib/pages/` + `public/site.css` |
 | `public/` | served assets: `site.css`, `site/media/` fonts, images, `svg/`, `rss.xml`, `sitemap.xml` |
 | `public/site.css` | the captured stylesheet, linked from the layout (not imported — see below) |
+| `public/motion.css`, `public/link-tiles.css`, `public/sonner.css` | the animations, the `/links` social-tile styles and the toast styles the original injected at runtime; all linked from the layout |
 | `index.html`, `about/`, `workspace/`, `work/*`, `_next/`, … | **captured source** — the input the generator reads; not served directly |
 | `api-fixtures/` | captured API responses; the dashboard seeds its collections from here |
 
@@ -71,17 +72,33 @@ URLs resolve.
 
 | Route | Component | Endpoint |
 | --- | --- | --- |
-| `/contact`, `/fillForm` | `ContactForm` | `POST /api/messages` |
-| `/guestBook` | `Guestbook` | `GET` + `POST /api/testimonials` |
+| `/fillForm` | `MessageForm` | `POST /api/messages` |
+| `/guestBook` | `GuestbookLive` | `GET` + `POST /api/testimonials` |
 | `/` | `Testimonials` | `GET /api/testimonials` |
-| `/bookCall` | `BookCall` | `GET /api/overview` (identity) |
+| `/bookCall` | `BookCall` | Cal.com inline embed (`sajjadmolliek/15min`) |
 | `/about` (GitHub Activity card) | `GitHubActivity` | `GET /api/github` — server-side proxy to GitHub's GraphQL API |
+| `/` (time zone card) | `GlobeSection` → `GlobeCanvas` | three.js globe, lazy-loaded on scroll |
 
 `/api/github` reads `GITHUB_TOKEN` from the server environment (set in Vercel for
 production, `.env` locally) and answers with the contribution calendar for
 `GITHUB_LOGIN`; the token is never shipped to the browser and the response is
 cached for five minutes. The captured card fills in its heading, month row and
 53×7 grid from that response.
+
+## The globe
+
+The home page's "I'm very flexible with time zone communications" card keeps an
+empty box in the captured markup; `GlobeSection` mounts a three.js globe there
+once it comes within 200px of the viewport, and nothing WebGL enters the first
+load (`/` still ships 107 kB of JS). The scene mirrors the reference exactly —
+`three-globe` with its `@react-three/fiber` camera, lights and idle rotation — and
+its inputs are extracted from the captured site's own chunks:
+
+* `public/globe-countries.json` — the 176 country features it hexes
+* `lib/globe-arcs.ts` — the 40 arcs, each recoloured at random on load
+
+Regenerate both with `node ../extract-globe-data.mjs` (run from this folder) if
+the capture changes.
 
 The dashboard lives at **<https://portfolio-dashboard-sajjad.vercel.app>** and
 answers with CORS headers for this origin.

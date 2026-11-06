@@ -1,0 +1,109 @@
+/*
+ * The /links social tiles. The reference styles them with styled-jsx, so these
+ * rules live in its JS bundle rather than in the captured stylesheet: without
+ * them the hover label and the profile card stay visible (Tailwind only gives
+ * them opacity-0, which the reveal pass used to override) and sit on top of the
+ * tiles. Copied from the reference page’s own document.styleSheets (dump-jsx-rules.js),
+ * with the .jsx-* scopes replaced by :has() selectors that pin each brand’s
+ * colours to its tile. Do not edit by hand.
+ */
+
+.tooltip { box-shadow: rgba(0, 0, 0, 0.2) 5px 5px 5px inset, rgba(255, 255, 255, 0.1) -5px -5px 15px inset, rgba(0, 0, 0, 0.3) 5px 5px 15px, rgba(255, 255, 255, 0.1) -5px -5px 15px; }
+
+.tooltip-container:hover .tooltip { top: -150px; opacity: 1; visibility: visible; pointer-events: auto; }
+
+.tooltip-container:hover .layer { transform: rotate(-35deg) skew(20deg); }
+
+.tooltip-container:has(a.icon[href*="github.com"]):hover .layer-span { box-shadow: rgb(36, 41, 46) -1px 1px 3px; }
+
+.tooltip-container:has(a.icon[href*="github.com"]):hover .icon-text { bottom: -35px; opacity: 1; }
+
+.tooltip-container:has(a.icon[href*="github.com"]):hover .layer-span:nth-child(1) { opacity: 0.2; }
+
+.tooltip-container:has(a.icon[href*="github.com"]):hover .layer-span:nth-child(2) { opacity: 0.4; transform: translate(5px, -5px); }
+
+.tooltip-container:has(a.icon[href*="github.com"]):hover .layer-span:nth-child(3) { opacity: 0.6; transform: translate(10px, -10px); }
+
+.tooltip-container:has(a.icon[href*="github.com"]):hover .layer-span:nth-child(4) { opacity: 0.8; transform: translate(15px, -15px); }
+
+.tooltip-container:has(a.icon[href*="github.com"]):hover .layer-span:nth-child(5) { opacity: 1; transform: translate(20px, -20px); }
+
+.tooltip-container:has(a.icon[href*="github.com"]) .fab-github svg { width: 30px; height: 30px; }
+
+.tooltip-container:has(a.icon[href*="github.com"]) .layer-span, .tooltip-container:has(a.icon[href*="github.com"]) .icon-text { color: rgb(255, 255, 255); border-color: rgb(36, 41, 46); }
+
+.tooltip-container:has(a.icon[href*="github.com"]) .name { color: rgb(36, 41, 46) !important; }
+
+.tooltip-container:has(a.icon[href*="github.com"]) .username { white-space: nowrap; }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]):hover .layer-span { box-shadow: rgb(29, 161, 242) -1px 1px 3px; }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]):hover .icon-text { bottom: -35px; opacity: 1; }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]):hover .layer-span:nth-child(1) { opacity: 0.2; }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]):hover .layer-span:nth-child(2) { opacity: 0.4; transform: translate(5px, -5px); }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]):hover .layer-span:nth-child(3) { opacity: 0.6; transform: translate(10px, -10px); }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]):hover .layer-span:nth-child(4) { opacity: 0.8; transform: translate(15px, -15px); }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]):hover .layer-span:nth-child(5) { opacity: 1; transform: translate(20px, -20px); }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]) .layer-span, .tooltip-container:has(a.icon[href*="linkedin.com"]) .icon-text { color: rgb(29, 161, 242); border-color: rgb(29, 161, 242); }
+
+.tooltip-container:has(a.icon[href*="linkedin.com"]) .username { white-space: nowrap; }
+
+.tooltip-container:has(a.icon[href*="t.me"]):hover .layer-span { box-shadow: rgb(59, 130, 246) -1px 1px 3px; }
+
+.tooltip-container:has(a.icon[href*="t.me"]):hover .icon-text { bottom: -35px; opacity: 1; }
+
+.tooltip-container:has(a.icon[href*="t.me"]):hover .layer-span:nth-child(1) { opacity: 0.2; }
+
+.tooltip-container:has(a.icon[href*="t.me"]):hover .layer-span:nth-child(2) { opacity: 0.4; transform: translate(5px, -5px); }
+
+.tooltip-container:has(a.icon[href*="t.me"]):hover .layer-span:nth-child(3) { opacity: 0.6; transform: translate(10px, -10px); }
+
+.tooltip-container:has(a.icon[href*="t.me"]):hover .layer-span:nth-child(4) { opacity: 0.8; transform: translate(15px, -15px); }
+
+.tooltip-container:has(a.icon[href*="t.me"]):hover .layer-span:nth-child(5) { opacity: 1; transform: translate(20px, -20px); }
+
+.tooltip-container:has(a.icon[href*="t.me"]) .telegram-icon { background: linear-gradient(135deg, rgb(42, 171, 238) 0%, rgb(34, 158, 217) 100%); }
+
+.tooltip-container:has(a.icon[href*="t.me"]) .telegram-icon svg { width: 24px; height: 24px; }
+
+.tooltip-container:has(a.icon[href*="t.me"]) .layer-span, .tooltip-container:has(a.icon[href*="t.me"]) .icon-text { color: rgb(59, 130, 246); border-color: rgb(59, 130, 246); }
+
+.tooltip-container:has(a.icon[href*="mailto:"]):hover .layer-span { box-shadow: rgb(239, 68, 68) -1px 1px 3px; }
+
+.tooltip-container:has(a.icon[href*="mailto:"]):hover .icon-text { bottom: -35px; opacity: 1; }
+
+.tooltip-container:has(a.icon[href*="mailto:"]):hover .layer-span:nth-child(1) { opacity: 0.2; }
+
+.tooltip-container:has(a.icon[href*="mailto:"]):hover .layer-span:nth-child(2) { opacity: 0.4; transform: translate(5px, -5px); }
+
+.tooltip-container:has(a.icon[href*="mailto:"]):hover .layer-span:nth-child(3) { opacity: 0.6; transform: translate(10px, -10px); }
+
+.tooltip-container:has(a.icon[href*="mailto:"]):hover .layer-span:nth-child(4) { opacity: 0.8; transform: translate(15px, -15px); }
+
+.tooltip-container:has(a.icon[href*="mailto:"]):hover .layer-span:nth-child(5) { opacity: 1; transform: translate(20px, -20px); }
+
+.tooltip-container:has(a.icon[href*="mailto:"]) .email-icon svg { width: 24px; height: 24px; }
+
+.tooltip-container:has(a.icon[href*="mailto:"]) .layer-span, .tooltip-container:has(a.icon[href*="mailto:"]) .icon-text { color: rgb(239, 68, 68); border-color: rgb(239, 68, 68); }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]):hover .layer-span { box-shadow: rgb(230, 104, 60) -1px 1px 3px; }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]):hover .icon-text { bottom: -35px; opacity: 1; }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]):hover .layer-span:nth-child(1) { opacity: 0.2; }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]):hover .layer-span:nth-child(2) { opacity: 0.4; transform: translate(5px, -5px); }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]):hover .layer-span:nth-child(3) { opacity: 0.6; transform: translate(10px, -10px); }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]):hover .layer-span:nth-child(4) { opacity: 0.8; transform: translate(15px, -15px); }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]):hover .layer-span:nth-child(5) { opacity: 1; transform: translate(20px, -20px); }
+
+.tooltip-container:has(a.icon[href*="instagram.com"]) .instagram-svg { background: linear-gradient(45deg, rgb(240, 148, 51) 0%, rgb(230, 104, 60) 25%, rgb(220, 39, 67) 50%, rgb(204, 35, 102) 75%, rgb(188, 24, 136) 100%); }

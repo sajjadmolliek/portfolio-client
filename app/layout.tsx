@@ -1,9 +1,15 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { bodyClass, description } from '@/lib/pages/home';
+import BannerStarfield from '@/components/BannerStarfield';
 import SiteEffects from '@/components/SiteEffects';
+import SiteMenus from '@/components/SiteMenus';
 import CursorFX from '@/components/CursorFX';
 import GitHubActivity from '@/components/GitHubActivity';
+import GlobeSection from '@/components/GlobeSection';
+import Toaster from '@/components/Toaster';
+import GreetingToast from '@/components/GreetingToast';
+import HeroRoleLoop from '@/components/HeroRoleLoop';
 
 export const metadata: Metadata = {
   title: {
@@ -36,6 +42,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             public/motion.css): without this file the home page's fade-in blocks
             and the scrolling tech-stack rows are inert. */}
         <link rel="stylesheet" href="/motion.css" />
+        {/* the /links tiles are styled by the reference's styled-jsx (see
+            public/link-tiles.css): no hover label, no hover glow without it */}
+        <link rel="stylesheet" href="/link-tiles.css" />
+        {/* the toast stylesheet the original injected through sonner at runtime */}
+        <link rel="stylesheet" href="/sonner.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -46,8 +57,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* the captured site's client-side behaviour: scroll reveals, the hexagon
             background, the custom cursor and the live GitHub calendar */}
         <SiteEffects />
+        <BannerStarfield />
+        <SiteMenus />
         <CursorFX />
         <GitHubActivity />
+        <GlobeSection />
+        <HeroRoleLoop />
+        <Toaster />
+        <GreetingToast />
       </body>
     </html>
   );

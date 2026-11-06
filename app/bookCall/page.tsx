@@ -6,12 +6,10 @@ import BookCall from '@/components/BookCall';
 export const metadata: Metadata = { title, description };
 
 export default function Page() {
-  const [before, after = ''] = html.split('<!--SLOT-->');
   return (
     <>
-      <div dangerouslySetInnerHTML={{ __html: before }} />
+      <div dangerouslySetInnerHTML={{ __html: html }} />
       <BookCall />
-      <div dangerouslySetInnerHTML={{ __html: after }} />
     </>
   );
 }

@@ -35,10 +35,12 @@ const SRC = ROOT; // the captured site currently lives at the project root
 /** route -> the client component that gives it live data / forms */
 const SLOTS = {
   '/': { comp: 'Testimonials', props: '' },
-  '/contact': { comp: 'ContactForm', props: '' },
-  '/fillForm': { comp: 'ContactForm', props: ' variant="collab"' },
-  '/guestBook': { comp: 'Guestbook', props: '' },
-  '/bookCall': { comp: 'BookCall', props: '' },
+  // /contact is static in the reference (hero + mail link), so it gets no slot
+  '/fillForm': { comp: 'MessageForm', props: '' },
+  '/guestBook': { comp: 'GuestbookLive', props: '' },
+  // BookCall has no markup of its own: the captured page keeps an empty full-height
+  // container and the component mounts Cal's iframe into a host element placed there
+  '/bookCall': { comp: 'BookCall', props: '', host: true },
 };
 
 const ROUTES = [
@@ -126,8 +128,17 @@ function markRevealStates(body) {
       const cls = /(?:^|\s)class="([^"]*)"/.exec(attrs)?.[1];
       if (cls) {
         const tokens = cls.split(/\s+/);
-        const hovered = tokens.some(t => t.includes('hover:') || t.includes('focus:'));
-        if (tokens.includes('opacity-0') && !hovered) {
+        // `hover:` alone misses the named-group form (`group-hover/product:opacity-80`),
+        // which is exactly how the project cards hide their tint/title overlays —
+        // tagging those as entrances revealed a black panel over every screenshot.
+        const hovered = tokens.some(t => t.includes('hover') || t.includes('focus'));
+        // The /links social tiles keep their label and profile card at
+        // `opacity-0` until an ancestor (`:hover` on .tooltip-container) reveals
+        // them — they are hover states, not entrances, and tagging them made a
+        // full profile card and the "GitHub"/"LinkedIn" labels sit on top of the
+        // tiles at all times.
+        const hoverOnly = tokens.some(t => t === 'icon-text' || t === 'tooltip');
+        if (tokens.includes('opacity-0') && !hovered && !hoverOnly) {
           const props = ['opacity'];
           if (tokens.some(t => /^(translate-|scale-|rotate-|skew-)/.test(t))) {
             props.push('transform', 'translate');
@@ -179,6 +190,78 @@ function markHeadingBlocks(body) {
   return out + body.slice(cursor);
 }
 
+/**
+ * Two fixes for things the capture got wrong, applied to every page body:
+ *
+ *  - the avatar's hover reveal on /, /about and /workspace is the one place the
+ *    site shows the nickname, and the capture kept only the first line of it
+ *    ("MD. Sajjad Hossain") while the live site renders "…<br>Yadav";
+ *  - /about's repo grid is captured with a third "Total Repos" card that the
+ *    reference site does not have (its live grid is Public + Private, with the
+ *    Achievements panel underneath), so the card is dropped.
+ */
+function applyReferenceFixes(body) {
+  let out = body.replace(/(<span[^>]*Rubik Glitch[^>]*>MD\. Sajjad Hossain)<\/span>/g, '$1<br>Yadav</span>');
+
+  /*
+   * The nav cluster is the one block the capture froze in an older state: a 56px
+   * avatar with a white ring, and the illustration anchored at `left-4`. The
+   * reference renders a 40px ring-less avatar centred in the bar (both the
+   * desktop bar and the mobile one) and anchors the art at `-left-8 top-48`, so it
+   * hangs off the viewport edge with the avatar resting on its raised arm instead
+   * of standing beside its head. Both values are read off the live page's own
+   * markup, so the cluster lands where the reference has it.
+   */
+  out = out.replace(
+    /alt="avlogo" width="56" height="56"([^>]*?)style="color:transparent;width:56px;height:56px;border-radius:9999px;object-fit:cover;box-shadow:[^"]*"/g,
+    'alt="avlogo" width="40" height="40"$1style="color:transparent"',
+  );
+  out = out.replace(
+    /class="fixed left-4 top-48 -translate-y-1\/2 w-40 md:w-56 z-0 pointer-events-none select-none"/g,
+    'class="fixed top-0 w-40 md:w-56 z-0 pointer-events-none select-none"',
+  );
+  /*
+   * …and the avatar belongs on Superman's raised fist, so the picture is placed
+   * from the fist instead of from its own centre (the reference's spider hangs
+   * from a thread, which is why `top-48 -translate-y-1/2` works for it).
+   *
+   * The fist is measured from the file's alpha channel: its topmost pixel is
+   * (135.5, 12) of 260x280 — `node ../alpha-ascii.mjs public/superman.png` prints
+   * that tip. Drawn at `md:w-56` (224px) the scale is 224/260, so the fist lands
+   * (116.8, 10.3) inside the box. The bar's avatar is `left-8 top-1/2`, 40px in a
+   * 54px bar at `top-6`, i.e. its bottom centre is (52, 71); putting the tip 2px
+   * under that keeps the fist visible beneath the circle:
+   *   left = 52 - 116.8 = -65,  top = 73 - 10.3 = 63.
+   */
+  out = out.replace(
+    /(<img alt="Superman"[^>]*?style=")color:transparent"/g,
+    '$1color:transparent;left:-65px;top:63px"',
+  );
+
+  out = out.replace(
+    /<div class="col-span-2 bg-black border border-\[#30363d\][\s\S]*?Total Repos<\/div><\/div>/,
+    ''
+  );
+
+  // The capture opens a wrapper <div> before the page content and closes it after
+  // the toast host, so re-serialised markup buries <footer> inside it. On /links
+  // that wrapper is the padded content column, which inset the footer by 32px
+  // instead of letting it span the viewport as the reference renders it. Lift the
+  // footer out to the body level (where the reference has it) and drop the empty
+  // toast host the capture left behind — components/Toaster mounts the real one.
+  out = out.replace(/<section aria-label="Notifications alt\+T"[\s\S]*?<\/section>/, '');
+
+  const start = out.indexOf('<footer');
+  const end = out.lastIndexOf('</footer>');
+  if (start >= 0 && end > start) {
+    const footer = out.slice(start, end + '</footer>'.length);
+    out = out.slice(0, start) + out.slice(end + '</footer>'.length);
+    out = out.trimEnd() + footer;
+  }
+
+  return out;
+}
+
 function cleanBody(html) {
   const open = html.indexOf('<body');
   const close = html.indexOf('</body>');
@@ -217,7 +300,7 @@ function cleanBody(html) {
     .replace(/\/_next\/static\/media\//g, '/site/media/')
     .trim();
 
-  return { body: markHeadingBlocks(markRevealStates(body)), bodyClass: cls };
+  return { body: applyReferenceFixes(markHeadingBlocks(markRevealStates(body))), bodyClass: cls };
 }
 
 function headInfo(html) {
@@ -238,12 +321,27 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+/**
+ * The home page's "flexible with time zone" card keeps an empty absolute box where
+ * the reference appends its three.js globe. Mark it so the client can mount there.
+ */
+function injectGlobeHost(body) {
+  const box = '<div class="absolute w-full  lg:-mt-12   h-full z-10 flex items-end justify-center"></div>';
+  const host = '<div data-slot="globe" style="width:100%;height:100%"></div>';
+  if (!body.includes(box)) throw new Error('/: globe container not found in the capture');
+  // the card exists twice — once in the lg:hidden mobile stack, once on desktop —
+  // and the reference mounts a globe in both, so both get a host
+  return body.split(box).join(`<div class="absolute w-full  lg:-mt-12   h-full z-10 flex items-end justify-center">${host}</div>`);
+}
+
 /** Where on the page a client component should mount. */
 function placeSlot(route, body) {
   if (route === '/bookCall') {
-    // the captured page ships an empty full-height container for the Cal.com embed
+    // the captured page ships an empty full-height container for the Cal.com embed;
+    // the host stays inside it so Cal's own .cal-inline-container inherits its size
     const container = 'min-h-screen"></div>';
-    if (body.includes(container)) return body.replace(container, `min-h-screen">${SLOT_MARKER}</div>`);
+    const host = '<div data-slot="cal-inline" style="width:100%;height:100%;overflow:scroll"></div>';
+    if (body.includes(container)) return body.replace(container, `min-h-screen">${host}</div>`);
   }
   if (body.includes('<footer')) return body.replace('<footer', SLOT_MARKER + '<footer');
   return body + SLOT_MARKER;
@@ -266,6 +364,7 @@ for (const route of ROUTES) {
   const key = keyFor(route);
   const slot = SLOTS[route];
   if (slot) body = placeSlot(route, body);
+  if (route === '/') body = injectGlobeHost(body);
 
   fs.writeFileSync(
     path.join(ROOT, 'lib', 'pages', `${key}.ts`),
@@ -280,7 +379,16 @@ for (const route of ROUTES) {
   ensureDir(dir);
 
   const slotImport = slot ? `import ${slot.comp} from '@/components/${slot.comp}';\n` : '';
-  const pageFn = slot
+  const pageFn = slot?.host
+    ? `export default function Page() {\n` +
+      `  return (\n` +
+      `    <>\n` +
+      `      <div dangerouslySetInnerHTML={{ __html: html }} />\n` +
+      `      <${slot.comp}${slot.props} />\n` +
+      `    </>\n` +
+      `  );\n` +
+      `}\n`
+    : slot
     ? `export default function Page() {\n` +
       `  const [before, after = ''] = html.split('${SLOT_MARKER}');\n` +
       `  return (\n` +

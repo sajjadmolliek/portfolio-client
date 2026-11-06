@@ -7,3 +7,14 @@ tsconfig.tsbuildinfo
 
 .vercel
 .env*
+
+# captured-page dumps and one-off probe artifacts
+index.rsc
+/*/index.html
+/*/*/index.html
+/public/_*.png
+/public/_ref-view.html
+.parity-bak/
+scripts/_*.txt
+scripts/_inspect.mjs
+scripts/_outline.mjs
