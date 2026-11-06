@@ -29,10 +29,9 @@ import { usePathname } from 'next/navigation';
  *     progress crossed each project; that swap is replayed here with the
  *     original 0.3s / 0.1s-staggered motion.
  *  6. **nav bar** — the header was a `motion.div` sliding to `y:-100` while
- *     scrolling down and back on the way up (0.3s), which parks the photo out
- *     of the way until you scroll back up. The same `transform` is written
- *     here: because it is a transform, Superman (a `fixed` child of that box)
- *     rides along exactly as the original's illustration did.
+ *     scrolling down and back on the way up (0.3s), which parks the avatar and
+ *     the illustration out of the way until you scroll back up. The same
+ *     `transform` is written here, so the whole hanging cluster travels together.
  *
  * Everything re-runs on client-side navigation, and a safety timer reveals any
  * element that is already on screen but never got observed, so content can never
@@ -372,16 +371,29 @@ function setupArt(animate: boolean) {
   };
 
   /* ------------------------------------------------------- nav bar */
-  // The bar stays put. The reference parks it off-screen while scrolling down
-  // (`translateY(-100px)`) and eases it back on the way up, but the superman
-  // image lives inside that wrapper: giving the wrapper a transform makes it the
-  // containing block for the image's `position: fixed`, so the image slid around
-  // with the bar instead of staying at its spot. Keeping the bar stationary keeps
-  // both of them fixed on screen, which is what the page is meant to look like.
+  /*
+   * The bar is a hanging cluster: the reference slides the whole thing up by
+   * 100px the moment you scroll down and eases it straight back as soon as you
+   * scroll up (motion.div, 0.3s), so the avatar — and the illustration behind it
+   * — ride along and park off-screen while you read. Because the art is
+   * `absolute` inside this wrapper (scripts/generate-pages.mjs), the transform
+   * here is the containing block for it and the two move as one, exactly like the
+   * reference's spider. At the top of the page the bar is always shown.
+   */
   const header = document.querySelector<HTMLElement>('div.hidden.md\\:block.fixed.top-6');
+  let lastY = window.scrollY;
+  const paintNav = () => {
+    if (!header) return;
+    const y = window.scrollY;
+    if (y === lastY) return;
+    const down = y > lastY;
+    lastY = y;
+    header.style.transform = down && y > 0 ? 'translateY(-100px)' : 'translateY(0px)';
+  };
   if (header) {
-    header.style.transition = '';
-    header.style.transform = 'none';
+    header.style.transition = 'transform .3s cubic-bezier(.4, 0, .2, 1)';
+    header.style.willChange = 'transform';
+    header.style.transform = 'translateY(0px)';
   }
 
   /* ------------------------------------------------------ the driver */
@@ -392,6 +404,7 @@ function setupArt(animate: boolean) {
     paintCurated();
   };
   const onScroll = () => {
+    paintNav();
     if (!frame) frame = requestAnimationFrame(paint);
   };
 
@@ -408,6 +421,7 @@ function setupArt(animate: boolean) {
     if (header) {
       header.style.removeProperty('transform');
       header.style.removeProperty('transition');
+      header.style.removeProperty('will-change');
       header.style.removeProperty('margin-top');
     }
   };
@@ -432,15 +446,11 @@ export default function SiteEffects() {
       const sup = document.querySelector<HTMLImageElement>('img[alt="Superman"]');
       if (sup && desktop) {
         /*
-         * The box comes from the reference's own markup (`fixed -left-8 top-48
-         * -translate-y-1/2 …`, applied by scripts/generate-pages.mjs), so nothing
-         * is moved here — the picture has to hold that spot while the page
-         * scrolls. An avatar-on-fist animation used to flip the image to
-         * `position: relative` and scale it on the first scroll; because the bar
-         * was being translated at the same time (a transform makes the bar the
-         * containing block for its fixed children) the picture wandered around the
-         * viewport instead of holding its spot. The bar no longer transforms, so
-         * this only clears any stale inline override that animation left behind.
+         * The box comes from the reference's own markup — `absolute top-0` inside
+         * the `fixed top-6` header, with the inline left/top that pins the photo
+         * to Superman's fist (scripts/generate-pages.mjs). Sitting in the header's
+         * own coordinates is what lets the nav-bar slide carry the picture with
+         * it, the way the reference's spider rides along with its bar.
          */
         if (sup.style.position) {
           sup.style.removeProperty('position');

@@ -218,7 +218,7 @@ function applyReferenceFixes(body) {
   );
   out = out.replace(
     /class="fixed left-4 top-48 -translate-y-1\/2 w-40 md:w-56 z-0 pointer-events-none select-none"/g,
-    'class="fixed top-0 w-40 md:w-56 z-0 pointer-events-none select-none"',
+    'class="absolute top-0 w-40 md:w-56 z-0 pointer-events-none select-none"',
   );
   /*
    * …and the avatar belongs on Superman's raised fist, so the picture is placed
@@ -229,13 +229,19 @@ function applyReferenceFixes(body) {
    * (135.5, 12) of 260x280 — `node ../alpha-ascii.mjs public/superman.png` prints
    * that tip. Drawn at `md:w-56` (224px) the scale is 224/260, so the fist lands
    * (116.8, 10.3) inside the box. The bar's avatar is `left-8 top-1/2`, 40px in a
-   * 54px bar at `top-6`, i.e. its bottom centre is (52, 71); putting the tip 2px
-   * under that keeps the fist visible beneath the circle:
+   * 54px bar, i.e. its bottom centre is (52, 71) in viewport coordinates; putting
+   * the tip 2px under that keeps the fist visible beneath the circle:
    *   left = 52 - 116.8 = -65,  top = 73 - 10.3 = 63.
+   *
+   * `top` is expressed against the bar, not the viewport: the art is `absolute`
+   * inside the `fixed top-6` header so it rides along when SiteEffects parks the
+   * bar (the reference's whole cluster — bar, avatar, illustration — slides up
+   * together as you scroll down). The header sits 24px below the viewport top, so
+   * 63 - 24 = 39.
    */
   out = out.replace(
     /(<img alt="Superman"[^>]*?style=")color:transparent"/g,
-    '$1color:transparent;left:-65px;top:63px"',
+    '$1color:transparent;left:-65px;top:39px"',
   );
 
   out = out.replace(

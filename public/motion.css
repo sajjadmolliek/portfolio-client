@@ -78,3 +78,24 @@
 .animate-shine {
   animation: shine 0.8s ease-out;
 }
+/* ------------------------------------------------------------ nav thread */
+/*
+ * The reference's header hangs: a thread comes down from the top of the page and
+ * the artwork/avatar sit at its end, so the whole cluster slides up along that
+ * thread as you scroll down (see components/SiteEffects.tsx). The illustration
+ * here is Superman, which has no thread of its own, so the avatar's own wrapper
+ * carries it: a 1px line from the top of the viewport down to the photo. 31px is
+ * the avatar's top edge in the header (24px bar offset + 7px centring), so the
+ * line always meets the photo exactly, at every width and scroll offset.
+ */
+div.absolute.left-8.top-1\/2.cursor-pointer.-translate-y-1\/2.z-50::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1px;
+  height: 31px;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.55));
+  pointer-events: none;
+}

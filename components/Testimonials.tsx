@@ -121,7 +121,8 @@ export default function Testimonials() {
         .slot-words .deck{position:relative;width:100%;overflow:hidden;background:#000;height:${DECK_HEIGHT}px}
         .slot-words .tcard{position:absolute;left:50%;top:50%;box-sizing:border-box;width:${CARD}px;
           height:${CARD}px;padding:32px;cursor:pointer;text-align:left;border:2px solid #404040;
-          background:#0a0a0a;color:#fff;z-index:0;transition:all .5s cubic-bezier(.4,0,.2,1)}
+          background:#0a0a0a;color:#fff;z-index:0;transition:all .5s cubic-bezier(.4,0,.2,1);
+          display:flex;flex-direction:column}
         .slot-words .tcard:hover{border-color:#737373}
         .slot-words .tcard.on{background:#fff;color:#171717;border-color:#fff;z-index:10}
         .slot-words .tcard .fold{position:absolute;right:-2px;top:48px;display:block;
@@ -133,13 +134,18 @@ export default function Testimonials() {
           background:#262626;box-shadow:3px 3px 0 rgba(255,255,255,.22);
           font-size:20px;font-weight:700;color:#0f0f0f}
         .slot-words .tcard.on .ava{box-shadow:3px 3px 0 rgba(0,0,0,.25)}
-        .slot-words .tcard .q{margin:0;font-size:16px;line-height:1.45;font-weight:500;
-          display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
-        .slot-words .tcard .meta{position:absolute;left:32px;right:32px;bottom:32px}
-        .slot-words .tcard .who{margin:0;font-size:14px;font-style:italic;color:rgba(255,255,255,.8);
-          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        /* The quote takes whatever room is left above the signature and is clamped
+           to four lines, so a long review can only ever end in an ellipsis — it can
+           never run under the name and date the way it did when the signature was
+           painted on top of it (absolute, bottom:32px). */
+        .slot-words .tcard .q{margin:0;flex:1 1 auto;min-height:0;font-size:16px;line-height:1.4;
+          font-weight:500;overflow-wrap:anywhere;
+          display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+        .slot-words .tcard .meta{position:static;flex:0 0 auto;margin-top:auto;padding-top:8px}
+        .slot-words .tcard .who{margin:0;font-size:14px;line-height:1.3;font-style:italic;
+          color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .slot-words .tcard.on .who{color:#404040}
-        .slot-words .tcard .when{margin:4px 0 0;font-size:12px;color:rgba(255,255,255,.6);
+        .slot-words .tcard .when{margin:4px 0 0;font-size:12px;line-height:1.3;color:rgba(255,255,255,.6);
           white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .slot-words .tcard.on .when{color:#737370}
         .slot-words .nav{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
@@ -153,7 +159,7 @@ export default function Testimonials() {
         .slot-words .state{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
           margin:0;padding:0 24px;text-align:center;color:rgba(255,255,255,.65);font-size:15px}
         .slot-words .state.err{color:#ff9c9c}
-        @media (min-width:640px){.slot-words .tcard .q{font-size:20px}}
+        @media (min-width:640px){.slot-words .tcard .q{font-size:18px}}
         @media (max-width:640px){
           .slot-words{padding-bottom:72px}
           .slot-words .head{padding-top:56px}
@@ -198,8 +204,8 @@ export default function Testimonials() {
                   <span className="ava" aria-hidden="true">
                     {name.slice(0, 1).toUpperCase()}
                   </span>
-                )}              <p className="q">{t.text ? `&ldquo;${t.text}&rdquo;` : ''}
-</p>
+                )}
+                <p className="q">{t.text ? `\u201C${t.text}\u201D` : ''}</p>
                 <div className="meta">
                   <p className="who">- {name}</p>
                   {when && <p className="when">{when}</p>}
