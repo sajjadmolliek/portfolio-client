@@ -244,6 +244,16 @@ function applyReferenceFixes(body) {
     '$1color:transparent;left:-65px;top:39px"',
   );
 
+  /*
+   * The "Let's work together" card carries the reference author's monogram
+   * (`av` — Aviral Yadav) inside its winged badge, on every page that renders
+   * the card. This site belongs to MD. Sajjad Hossain, so the badge reads `SA`.
+   */
+  out = out.replace(
+    /(<span class="text-white\/80 text-3xl sm:text-4xl md:text-5xl font-semibold font-mono">)av(<\/span>)/g,
+    '$1SA$2',
+  );
+
   out = out.replace(
     /<div class="col-span-2 bg-black border border-\[#30363d\][\s\S]*?Total Repos<\/div><\/div>/,
     ''
